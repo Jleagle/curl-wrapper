@@ -1,0 +1,26 @@
+{
+  "name": "jleagle/curl-wrapper",
+  "keywords": [
+    "curl",
+    "wrapper"
+  ],
+  "description": "An object oriented wrapper around cURL",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "James Eagle",
+      "email": "jimeagle@gmail.com",
+      "homepage": "http://jimeagle.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "ext-curl": "*",
+    "packaged/helpers": "~1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jleagle\\CurlWrapper\\": "src/"
+    }
+  }
+}
