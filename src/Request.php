@@ -25,7 +25,6 @@ class Request
 
     // Set some default options
     $this->setReturnTransfer();
-    $this->setHeadersIn();
     $this->setHeadersOut();
 
     $userAgent = 'Jleagle\CurlWrapper (https://github.com/Jleagle/curl-wrapper)';
