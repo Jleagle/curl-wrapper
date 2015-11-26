@@ -172,7 +172,10 @@ class Request
    */
   public function setPostFields(array $data)
   {
-    $this->addOption(CURLOPT_POSTFIELDS, $data);
+    if($data)
+    {
+      $this->addOption(CURLOPT_POSTFIELDS, $data);
+    }
     return $this;
   }
 

@@ -11,10 +11,7 @@ class Curl
    */
   public static function get($url, array $data = [])
   {
-    if($data)
-    {
-      $url = $url . '?' . http_build_query($data);
-    }
+    $url = static::_makeUrl($url, $data);
 
     return Request::i()
       ->setUrl($url)
@@ -31,12 +28,8 @@ class Curl
   {
     $curl = Request::i()
       ->setUrl($url)
-      ->setPost();
-
-    if($data)
-    {
-      $curl->setPostFields($data);
-    }
+      ->setPost()
+      ->setPostFields($data);
 
     return $curl;
   }
@@ -49,10 +42,7 @@ class Curl
    */
   public static function put($url, array $data = [])
   {
-    if($data)
-    {
-      $url = $url . '?' . http_build_query($data);
-    }
+    $url = static::_makeUrl($url, $data);
 
     return Request::i()
       ->setUrl($url)
@@ -69,12 +59,8 @@ class Curl
   {
     $curl = Request::i()
       ->setUrl($url)
-      ->setMethod(Request::METHOD_PATCH);
-
-    if($data)
-    {
-      $curl->setPostFields($data);
-    }
+      ->setMethod(Request::METHOD_PATCH)
+      ->setPostFields($data);
 
     return $curl;
   }
@@ -87,13 +73,27 @@ class Curl
    */
   public static function delete($url, array $data = [])
   {
-    if($data)
-    {
-      $url = $url . '?' . http_build_query($data);
-    }
+    $url = static::_makeUrl($url, $data);
 
     return Request::i()
       ->setUrl($url)
       ->setMethod(Request::METHOD_DELETE);
+  }
+
+  /**
+   * @param string $url
+   * @param array  $data
+   *
+   * @return string
+   */
+  protected static function _makeUrl($url, array $data = [])
+  {
+    if($data)
+    {
+      $data = http_build_query($data);
+      $separator = (parse_url($url, PHP_URL_QUERY) == null) ? '?' : '&';
+      return $url . $separator . $data;
+    }
+    return $url;
   }
 }
