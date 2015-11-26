@@ -1,6 +1,7 @@
 <?php
 namespace Jleagle\CurlWrapper;
 
+use Jleagle\CurlWrapper\Exceptions\CurlInvalidJsonException;
 use Packaged\Helpers\Arrays;
 
 class Response
@@ -24,6 +25,23 @@ class Response
     $this->_output = $output;
     $this->_errorNumber = $errorNumber;
     $this->_errorMessage = $errorMessage;
+  }
+
+  /**
+   * @return array
+   *
+   * @throws CurlInvalidJsonException
+   */
+  public function getJson()
+  {
+    $json = json_decode($this->getOutput(), true);
+
+    if(json_last_error() == JSON_ERROR_NONE)
+    {
+      return $json;
+    }
+
+    throw new CurlInvalidJsonException();
   }
 
   /**
