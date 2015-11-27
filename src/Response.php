@@ -6,23 +6,23 @@ use Packaged\Helpers\Arrays;
 
 class Response
 {
-  protected $_info;
   protected $_output;
+  protected $_info;
   protected $_errorNumber;
   protected $_errorMessage;
 
   /**
    * Response constructor.
    *
-   * @param array  $info
    * @param string $output
+   * @param array  $info
    * @param int    $errorNumber
    * @param string $errorMessage
    */
-  public function __construct(array $info, $output, $errorNumber, $errorMessage)
+  public function __construct($output, array $info, $errorNumber, $errorMessage)
   {
-    $this->_info = $info;
     $this->_output = $output;
+    $this->_info = $info;
     $this->_errorNumber = $errorNumber;
     $this->_errorMessage = $errorMessage;
   }

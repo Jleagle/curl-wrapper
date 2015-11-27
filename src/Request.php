@@ -250,17 +250,20 @@ class Request
 
     $output = curl_exec($curl);
     $info = curl_getinfo($curl);
-
-    if($output === false || $info === false)
-    {
-      throw new CurlException('cURL failure');
-    }
-
     $errorNumber = curl_errno($curl);
     $errorMessage = curl_error($curl);
 
     curl_close($curl);
 
-    return new Response($info, $output, $errorNumber, $errorMessage);
+    $response = new Response($output, $info, $errorNumber, $errorMessage);
+
+    if($output === false || $info === false)
+    {
+      $exception = new CurlException('cURL failure');
+      $exception->setResponse($response);
+      throw $exception;
+    }
+
+    return $response;
   }
 }
