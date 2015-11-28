@@ -108,10 +108,13 @@ class Request
 
   /**
    * @param $contentType - ContentTypeEnum
+   *
+   * @return $this
    */
   public function setContentType($contentType)
   {
     $this->addHeader('Content-Type', $contentType);
+    return $this;
   }
 
   /**
