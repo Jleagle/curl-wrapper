@@ -1,6 +1,8 @@
 <?php
 namespace Jleagle\CurlWrapper;
 
+use Jleagle\CurlWrapper\Enums\MethodTypeEnum;
+
 class Curl
 {
   /**
@@ -46,7 +48,7 @@ class Curl
 
     return Request::i()
       ->setUrl($url)
-      ->setMethod(Request::METHOD_PUT);
+      ->setMethod(MethodTypeEnum::PUT);
   }
 
   /**
@@ -59,7 +61,7 @@ class Curl
   {
     $curl = Request::i()
       ->setUrl($url)
-      ->setMethod(Request::METHOD_PATCH)
+      ->setMethod(MethodTypeEnum::PATCH)
       ->setPostFields($data);
 
     return $curl;
@@ -77,7 +79,7 @@ class Curl
 
     return Request::i()
       ->setUrl($url)
-      ->setMethod(Request::METHOD_DELETE);
+      ->setMethod(MethodTypeEnum::DELETE);
   }
 
   /**

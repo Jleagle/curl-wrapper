@@ -6,12 +6,6 @@ use Jleagle\CurlWrapper\Exceptions\CurlException;
 
 class Request
 {
-  const METHOD_GET = 'get';
-  const METHOD_POST = 'post';
-  const METHOD_PUT = 'put';
-  const METHOD_PATCH = 'patch';
-  const METHOD_DELETE = 'delete';
-
   protected $_options = [];
   protected $_headers = [];
 
@@ -97,6 +91,8 @@ class Request
   }
 
   /**
+   * Set contents of HTTP Cookie header
+   *
    * @param array $data
    *
    * @return $this
@@ -110,6 +106,8 @@ class Request
   }
 
   /**
+   * Ask for a HTTP GET request
+   *
    * @param bool $bool
    *
    * @return $this
@@ -121,6 +119,21 @@ class Request
   }
 
   /**
+   * Follow HTTP 3xx redirects
+   *
+   * @param bool $bool
+   *
+   * @return $this
+   */
+  public function setFollowRedirects($bool = true)
+  {
+    $this->addOption(CURLOPT_FOLLOWLOCATION, $bool);
+    return $this;
+  }
+
+  /**
+   * Pass headers to the data stream
+   *
    * @param bool $bool
    *
    * @return $this
@@ -143,6 +156,8 @@ class Request
   }
 
   /**
+   * Custom string for request
+   *
    * @param string $method
    *
    * @return $this
@@ -154,6 +169,8 @@ class Request
   }
 
   /**
+   * Request a HTTP POST
+   *
    * @param bool $bool
    *
    * @return $this
@@ -165,6 +182,8 @@ class Request
   }
 
   /**
+   * Specify data to POST to server
+   *
    * @param array $data
    *
    * @return $this
@@ -179,6 +198,8 @@ class Request
   }
 
   /**
+   * Return the raw output
+   *
    * @param bool $bool
    *
    * @return $this
@@ -190,6 +211,8 @@ class Request
   }
 
   /**
+   * Set maximum time the request is allowed to take
+   *
    * @param int $seconds
    *
    * @return $this
@@ -201,6 +224,8 @@ class Request
   }
 
   /**
+   * Set HTTP user-agent header
+   *
    * @param string $userAgent
    *
    * @return $this
@@ -212,6 +237,8 @@ class Request
   }
 
   /**
+   * Provide the URL to use in the request
+   *
    * @param string $url
    *
    * @return $this
