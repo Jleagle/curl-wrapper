@@ -192,7 +192,7 @@ class Request
   {
     if($data)
     {
-      $this->addOption(CURLOPT_POSTFIELDS, $data);
+      $this->addOption(CURLOPT_POSTFIELDS, http_build_query($data));
     }
     return $this;
   }
