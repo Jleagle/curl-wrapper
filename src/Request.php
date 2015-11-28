@@ -184,15 +184,19 @@ class Request
   /**
    * Specify data to POST to server
    *
-   * @param array $data
+   * @param $data
    *
    * @return $this
    */
-  public function setPostFields(array $data)
+  public function setPostFields($data)
   {
     if($data)
     {
-      $this->addOption(CURLOPT_POSTFIELDS, http_build_query($data));
+      if(is_array($data))
+      {
+        $data = http_build_query($data);
+      }
+      $this->addOption(CURLOPT_POSTFIELDS, $data);
     }
     return $this;
   }

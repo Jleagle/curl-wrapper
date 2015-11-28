@@ -26,7 +26,7 @@ class Curl
    *
    * @return Request
    */
-  public static function post($url, array $data = [])
+  public static function post($url, $data = [])
   {
     $curl = Request::i()
       ->setUrl($url)
@@ -57,7 +57,7 @@ class Curl
    *
    * @return Request
    */
-  public static function patch($url, array $data = [])
+  public static function patch($url, $data = [])
   {
     $curl = Request::i()
       ->setUrl($url)
