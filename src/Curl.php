@@ -22,7 +22,7 @@ class Curl
 
   /**
    * @param string $url
-   * @param array  $data
+   * @param        $data
    *
    * @return Request
    */
@@ -53,7 +53,7 @@ class Curl
 
   /**
    * @param string $url
-   * @param array  $data
+   * @param        $data
    *
    * @return Request
    */
