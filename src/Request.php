@@ -3,12 +3,36 @@ namespace Jleagle\CurlWrapper;
 
 use Jleagle\CurlWrapper\Exceptions\CurlDisabledException;
 use Jleagle\CurlWrapper\Exceptions\CurlException;
+use Jleagle\CurlWrapper\Header\Cookie;
+use Jleagle\CurlWrapper\Header\CookieJar;
 
 class Request
 {
+  const AGENT_AGENT = 'Jleagle\CurlWrapper (https://github.com/Jleagle/curl-wrapper)';
+
+  /**
+   * @var string[]
+   */
   protected $_options = [];
+
+  /**
+   * @var string[]
+   */
   protected $_headers = [];
 
+  /**
+   * @var string[]
+   */
+  protected $_returnHeaders = [];
+
+  /**
+   * @var CookieJar
+   */
+  protected $_cookies;
+
+  /**
+   * Request constructor.
+   */
   public function __construct()
   {
     // Check cURL is installed
@@ -19,10 +43,10 @@ class Request
 
     // Set some default options
     $this->setReturnTransfer();
+    $this->setFollowRedirects();
     $this->setHeadersOut();
-
-    $userAgent = 'Jleagle\CurlWrapper (https://github.com/Jleagle/curl-wrapper)';
-    $this->setUserAgent($userAgent);
+    $this->setHeaderCallback([$this, '_headerCallback']);
+    $this->setUserAgent(self::AGENT_AGENT);
   }
 
   /**
@@ -31,6 +55,18 @@ class Request
   public static function i()
   {
     return new static();
+  }
+
+  /**
+   * @param        $curlHandle
+   * @param string $headerLine
+   *
+   * @return int
+   */
+  protected function _headerCallback($curlHandle, $headerLine)
+  {
+    $this->_returnHeaders[] = $headerLine;
+    return strlen($headerLine);
   }
 
   /**
@@ -46,18 +82,6 @@ class Request
   }
 
   /**
-   * @param int   $option
-   * @param mixed $value
-   *
-   * @return $this
-   */
-  public function addOption($option, $value)
-  {
-    $this->_options[$option] = $value;
-    return $this;
-  }
-
-  /**
    * @param string $key
    *
    * @return bool
@@ -65,6 +89,18 @@ class Request
   public function hasHeader($key)
   {
     return isset($this->_headers[$key]);
+  }
+
+  /**
+   * @param int   $option
+   * @param mixed $value
+   *
+   * @return $this
+   */
+  public function setOption($option, $value)
+  {
+    $this->_options[$option] = $value;
+    return $this;
   }
 
   /**
@@ -85,26 +121,32 @@ class Request
    */
   public function setBasicAuth($username, $password)
   {
-    $this->addOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-    $this->addOption(CURLOPT_USERPWD, $username . ':' . $password);
+    $this->setOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    $this->setOption(CURLOPT_USERPWD, $username . ':' . $password);
     return $this;
   }
 
   /**
-   * Set contents of HTTP Cookie header
-   *
-   * @param array $data
+   * @param CookieJar $cookieJar
    *
    * @return $this
    */
-  public function setCookies(array $data)
+  public function setCookies(CookieJar $cookieJar)
   {
-    $data = http_build_query($data, null, ';');
-
-    $this->addOption(CURLOPT_COOKIE, $data);
+    $this->_cookies = $cookieJar;
     return $this;
   }
 
+  /**
+   * @param Cookie $cookie
+   *
+   * @return $this
+   */
+  public function addCookie(Cookie $cookie)
+  {
+    $this->_cookies->addCookie($cookie);
+    return $this;
+  }
 
   /**
    * @param $contentType - ContentTypeEnum
@@ -126,7 +168,7 @@ class Request
    */
   public function setGet($bool = true)
   {
-    $this->addOption(CURLOPT_HTTPGET, $bool);
+    $this->setOption(CURLOPT_HTTPGET, $bool);
     return $this;
   }
 
@@ -134,12 +176,19 @@ class Request
    * Follow HTTP 3xx redirects
    *
    * @param bool $bool
+   * @param bool $enableCookieEngine
    *
    * @return $this
    */
-  public function setFollowRedirects($bool = true)
+  public function setFollowRedirects($bool = true, $enableCookieEngine = true)
   {
-    $this->addOption(CURLOPT_FOLLOWLOCATION, $bool);
+    $this->setOption(CURLOPT_FOLLOWLOCATION, $bool);
+
+    if($enableCookieEngine)
+    {
+      $this->setCookieFile();
+    }
+
     return $this;
   }
 
@@ -152,7 +201,51 @@ class Request
    */
   public function setHeadersIn($bool = true)
   {
-    $this->addOption(CURLOPT_HEADER, $bool);
+    $this->setOption(CURLOPT_HEADER, $bool);
+    return $this;
+  }
+
+  /**
+   * @param string $filePath
+   *
+   * @return $this
+   */
+  public function setCookieFile($filePath = '')
+  {
+    $this->setOption(CURLOPT_COOKIEFILE, $filePath);
+    return $this;
+  }
+
+  /**
+   * @param string $referer
+   *
+   * @return $this
+   */
+  public function setReferer($referer)
+  {
+    $this->setOption(CURLOPT_REFERER, $referer);
+    return $this;
+  }
+
+  /**
+   * @param $callable
+   *
+   * @return $this
+   */
+  public function setHeaderCallback($callable)
+  {
+    $this->setOption(CURLOPT_HEADERFUNCTION, $callable);
+    return $this;
+  }
+
+  /**
+   * @param bool $bool
+   *
+   * @return $this
+   */
+  public function setVerbose($bool = true)
+  {
+    $this->setOption(CURLOPT_VERBOSE, $bool);
     return $this;
   }
 
@@ -163,7 +256,7 @@ class Request
    */
   public function setHeadersOut($bool = true)
   {
-    $this->addOption(CURLINFO_HEADER_OUT, $bool);
+    $this->setOption(CURLINFO_HEADER_OUT, $bool);
     return $this;
   }
 
@@ -176,7 +269,7 @@ class Request
    */
   public function setMethod($method)
   {
-    $this->addOption(CURLOPT_CUSTOMREQUEST, strtoupper($method));
+    $this->setOption(CURLOPT_CUSTOMREQUEST, strtoupper($method));
     return $this;
   }
 
@@ -189,14 +282,14 @@ class Request
    */
   public function setPost($bool = true)
   {
-    $this->addOption(CURLOPT_POST, $bool);
+    $this->setOption(CURLOPT_POST, $bool);
     return $this;
   }
 
   /**
    * Specify data to POST to server
    *
-   * @param $data
+   * @param array|string $data
    *
    * @return $this
    */
@@ -208,7 +301,7 @@ class Request
       {
         $data = http_build_query($data);
       }
-      $this->addOption(CURLOPT_POSTFIELDS, $data);
+      $this->setOption(CURLOPT_POSTFIELDS, $data);
     }
     return $this;
   }
@@ -222,7 +315,7 @@ class Request
    */
   public function setReturnTransfer($bool = true)
   {
-    $this->addOption(CURLOPT_RETURNTRANSFER, $bool);
+    $this->setOption(CURLOPT_RETURNTRANSFER, $bool);
     return $this;
   }
 
@@ -235,7 +328,7 @@ class Request
    */
   public function setTimeout($seconds)
   {
-    $this->addOption(CURLOPT_TIMEOUT, $seconds);
+    $this->setOption(CURLOPT_TIMEOUT, $seconds);
     return $this;
   }
 
@@ -248,7 +341,7 @@ class Request
    */
   public function setUserAgent($userAgent)
   {
-    $this->addOption(CURLOPT_USERAGENT, $userAgent);
+    $this->setOption(CURLOPT_USERAGENT, $userAgent);
     return $this;
   }
 
@@ -261,7 +354,7 @@ class Request
    */
   public function setUrl($url)
   {
-    $this->addOption(CURLOPT_URL, $url);
+    $this->setOption(CURLOPT_URL, $url);
     return $this;
   }
 
@@ -277,6 +370,11 @@ class Request
     if($this->_headers)
     {
       curl_setopt($curl, CURLOPT_HTTPHEADER, array_values($this->_headers));
+    }
+
+    if($this->_cookies)
+    {
+      curl_setopt($curl, CURLOPT_COOKIE, (string)$this->_cookies);
     }
 
     return $curl;
@@ -298,7 +396,13 @@ class Request
 
     curl_close($curl);
 
-    $response = new Response($output, $info, $errorNumber, $errorMessage);
+    $response = new Response(
+      $output,
+      $info,
+      $errorNumber,
+      $errorMessage,
+      $this->_returnHeaders
+    );
 
     if($output === false || $info === false)
     {

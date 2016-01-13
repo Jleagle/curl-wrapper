@@ -2,6 +2,9 @@
 namespace Jleagle\CurlWrapper;
 
 use Jleagle\CurlWrapper\Exceptions\CurlInvalidJsonException;
+use Jleagle\CurlWrapper\Header\Cookie;
+use Jleagle\CurlWrapper\Header\CookieJar;
+use Jleagle\CurlWrapper\Header\Header;
 use Packaged\Helpers\Arrays;
 
 class Response
@@ -10,6 +13,7 @@ class Response
   protected $_info;
   protected $_errorNumber;
   protected $_errorMessage;
+  protected $_returnHeaders;
 
   /**
    * Response constructor.
@@ -18,13 +22,17 @@ class Response
    * @param array  $info
    * @param int    $errorNumber
    * @param string $errorMessage
+   * @param array  $returnHeaders
    */
-  public function __construct($output, array $info, $errorNumber, $errorMessage)
+  public function __construct(
+    $output, array $info, $errorNumber, $errorMessage, array $returnHeaders
+  )
   {
     $this->_output = $output;
     $this->_info = $info;
     $this->_errorNumber = $errorNumber;
     $this->_errorMessage = $errorMessage;
+    $this->_returnHeaders = $returnHeaders;
   }
 
   /**
@@ -66,6 +74,30 @@ class Response
   public function getErrorMessage()
   {
     return $this->_errorMessage;
+  }
+
+  /**
+   * @return string[]
+   */
+  public function getHeaders()
+  {
+    return Header::parseHeaders(implode('', $this->_returnHeaders));
+  }
+
+  /**
+   * @return CookieJar
+   */
+  public function getCookies()
+  {
+    $headers = Arrays::value($this->getHeaders(), 'Set-Cookie', []);
+
+    $cookyJar = new CookieJar();
+    foreach($headers as $header)
+    {
+      $cookie = Cookie::fromHeader($header);
+      $cookyJar->addCookie($cookie);
+    }
+    return $cookyJar;
   }
 
   /**
