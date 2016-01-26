@@ -8,7 +8,7 @@ use Jleagle\CurlWrapper\Header\CookieJar;
 
 class Request
 {
-  const AGENT_AGENT = 'Jleagle\CurlWrapper (https://github.com/Jleagle/curl-wrapper)';
+  const USER_AGENT = 'Jleagle\CurlWrapper (https://github.com/Jleagle/curl-wrapper)';
 
   /**
    * @var string[]
@@ -46,7 +46,7 @@ class Request
     $this->setFollowRedirects();
     $this->setHeadersOut();
     $this->setHeaderCallback([$this, '_headerCallback']);
-    $this->setUserAgent(self::AGENT_AGENT);
+    $this->setUserAgent(self::USER_AGENT);
   }
 
   /**
